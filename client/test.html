@@ -1,0 +1,15 @@
+<html>
+  <script>
+    setInterval(function () {
+      let currentDay = new Date().getDate(); // get the current day
+      let today = new Date().getDate();
+      if (today !== currentDay) {
+        // currentDay = today;
+        console.log("Today not equal to currentDay RESET");
+      } else {
+        // resetActionsLeft();
+        console.log("Equal - No RESET Actions");
+      }
+    }, 6000);
+  </script>
+</html>

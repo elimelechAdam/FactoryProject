@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Edit Employee</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <script src="utilis.js" defer></script>
+    <script>
+      //need to make utilis and make global function
+
+    async function addShift(){
+      try{
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('shift');
+        const userID = sessionStorage.getItem("login");
+        
+        const shiftDate = document.getElementById("Date").value;
+        const shiftStart = document.getElementById("StartTime").value;
+        const shiftEnd = document.getElementById("EndTime").value; 
+        let datePart = shiftDate.substring(0, 10); // "2023-05-30"
+        // Set time components to midnight
+        let formattedDateTime = datePart + "T00:00:00"; // "2023-05-30T00:00:00"
+        console.log(datePart);
+        let status = await addAction();
+
+        console.log(shiftDate);
+        console.log(shiftStart);
+        console.log(shiftEnd);
+        
+        console.log(status);
+          if (!status == 0) {
+            let obj = {
+            Date: datePart,
+            StartTime: shiftStart,
+            EndTime: shiftEnd,
+          };
+
+          let fetchParams = {
+          method: "POST",
+          body: JSON.stringify(obj),
+          headers: { "Content-Type": "application/json" },
+          };
+          await fetch("https://localhost:44300/api/shift/",fetchParams);         
+          alert("Added - you are taken to the shift page.");
+          window.location.href = `shifts.html`;
+        } else {
+          alert("No actions left.");
+          console.log(`Error Status : ${status}`);
+        }
+      }catch(err){
+        console.log(err);
+      }
+    }
+    </script>
+    <style></style>
+  </head>
+  <body>
+    <div class="d-flex justify-content-between">
+      <h4>
+        <span
+          class="badge badge-pill badge-primary form-inline my-2 my-lg-0"
+          id="userWelcome"
+          >Welcome</span
+        ><br />
+
+      </h4>
+      <ul class="nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="employees.html">Employees</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="departments.html">Departments</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="shifts.html">Shifts</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="badge badge-pill badge-danger form-inline my-2 my-lg-0"
+            href="logout.html"
+            >Logout</a
+          >
+        </li>
+      </ul>
+    </div>
+    <br />
+    <div class="container centered-form" style="width: 20%">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title" style="text-align: center">Add shift</h3>
+            <form>
+              <div class="form-group">
+                <label for="Date">Date</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="Date"
+                  placeholder="Date"
+                />
+              </div>
+              <div class="form-group">
+                <label for="StartTime">StartTime</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="StartTime"
+                  placeholder="StartTime"
+                />
+              </div>
+              <div class="form-group">
+                <label for="EndTime">EndTime</label>
+                <input
+                  type="number"
+                  class="form-control"
+                  id="EndTime"
+                  placeholder="EndTime"
+                />
+              </div>
+              <button type="button" class="btn btn-primary" onclick="addShift()">
+                Add shift
+              </button>
+            </form>
+
+            <h5><span id="loginMsg"></span></h5>
+
+          </div>
+        </div>
+      </div>
+      </table>
+    </div>
+
+    <!-- Bootstrap JS -  Makes error 1.6.23 - Console error -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+  </body>
+</html>

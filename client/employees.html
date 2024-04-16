@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Employees</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <script src="utilis.js" defer></script>
+    <script>
+      //need to make utilis and make global function
+
+
+      async function getData() {
+        setWelcome();
+        try{
+          const userID = sessionStorage.getItem("login");
+          const fFetch = await fetch("https://localhost:44300/api/employeewithshift/");
+          const data = await fFetch.json();
+          
+          const tbody = document.getElementById("tbody");
+
+          data.forEach((employee) => {
+            let createTR = document.createElement("tr");
+
+            let createTDFullname = document.createElement("td");
+            createTDFullname.innerText = `${employee.FirstName +" "+ employee.LastName}`;
+
+            let createTDworkYear = document.createElement("td");
+            createTDworkYear.innerText = `${employee.StartWorkYear}`;
+
+            let createTDDepartID = document.createElement("td");
+            createTDDepartID.innerText = `${employee.DepartmentID}`;
+
+            let createTDShifts = document.createElement("td");
+            const ul = document.createElement("ul");
+
+            employee.ShiftsList.forEach(shift => {
+              const li = document.createElement("li");
+              li.innerText = `${shift.Date.slice(0, 10)}, ${shift.StartTime} - ${shift.EndTime}`;
+              ul.appendChild(li);
+            });
+
+            const actionsCell = document.createElement("td");
+
+            const editButton = document.createElement("a");
+            editButton.href = `editEmployee.html?editEmployee=${employee.ID}`;
+            editButton.className = "btn btn-primary btn-sm";
+            editButton.textContent = "Edit";
+
+            const deleteButton = document.createElement("a");
+
+            deleteButton.className = "btn btn-danger text-white btn-sm";
+            deleteButton.textContent = "Delete";
+
+            const addShift = document.createElement("a");
+            addShift.href = `addShift.html?addShift=${employee.ID}`;
+            addShift.className = "btn btn-dark btn-sm";
+            addShift.textContent = "Add Shift";
+
+            actionsCell.appendChild(editButton);
+            actionsCell.appendChild(deleteButton);
+            actionsCell.appendChild(addShift);
+
+            createTDShifts.appendChild(ul);
+            createTR.appendChild(createTDFullname);
+            createTR.appendChild(createTDworkYear);
+            createTR.appendChild(createTDDepartID);
+            createTR.appendChild(createTDShifts);
+            createTR.appendChild(actionsCell);
+            tbody.appendChild(createTR);
+
+            deleteButton.addEventListener("click", async () => {
+
+              let status = await addAction();
+              let fetchParams = {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+              };
+
+                console.log(status);
+                if (!status == 0) {
+                  await fetch(
+                    "https://localhost:44300/api/EmployeeShift/" + employee.ID,
+                    fetchParams
+                  );
+                  await fetch(
+                    "https://localhost:44300/api/employee/" + employee.ID,
+                    fetchParams
+                  );
+                  alert('Employee deleted;')
+                  location.reload();
+                } else {
+                  alert("No actions left.");
+                  console.log(`Error Status : ${status}`);
+                }
+            });
+          });
+        }catch(err){
+            console.log(`Error: ${err}`);
+        }
+      }
+
+      async function searchEmployee(){
+        try{
+          const searchValue = document.getElementById('searchVal').value
+          const resultsDiv = document.getElementById('results');
+          let status = await addAction();
+
+          console.log(status);
+          resultsDiv.innerHTML = '';
+          if (!status == 0) {
+            if(searchValue){
+            const response = await fetch(`https://localhost:44300/api/employee`);
+            const employees = await response.json();
+            
+            //FirstName, LastName,Department
+
+            const filteredEmployees = employees.filter(employee => {
+              let filter = `${employee.FirstName} ${employee.LastName}`.toLowerCase() + employee.DepartmentID;
+              return filter.includes(searchValue);
+            }
+            );
+            console.log(filteredEmployees);
+            if(!filteredEmployees.length){
+              
+              const errorMsg = document.createElement('div');
+              errorMsg.setAttribute("class", "badge badge-danger");
+              errorMsg.innerHTML = "<font size='4px'>Employee or department not found</font>";
+              resultsDiv.appendChild(errorMsg)
+            }
+
+            filteredEmployees.forEach(employee => {
+
+              const employeeDiv = document.createElement('div');
+              employeeDiv.innerHTML = `
+                <a href="#">${employee.FirstName} ${employee.LastName}</a> , <a href="editDepartment.html?department=${employee.DepartmentID}">Department - ${employee.DepartmentID}</a>
+              `;
+              resultsDiv.appendChild(employeeDiv);
+            });
+          } else {
+              alert("No actions left.");
+              console.log(`Error Status : ${status}`);
+            }
+          }else{
+            const errorMsg = document.createElement('div');
+            errorMsg.setAttribute("class", "badge badge-danger");
+            errorMsg.innerHTML = "<font size='4px'>Fill the search bar</font>";
+            resultsDiv.appendChild(errorMsg)
+          }
+        }catch(err){
+          console.log(`searchEmployee : ${err}`);
+        }
+      }
+    </script>
+  </head>
+  <body onload="getData()">
+    <div class="d-flex justify-content-between">
+      <h4>
+        <span
+          class="badge badge-pill badge-primary form-inline my-2 my-lg-0"
+          id="userWelcome"
+          ></span
+        ><br />
+        <h1>Employees</h1>
+      </h4>
+      <ul class="nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="employees.html">Employees</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="departments.html">Departments</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="shifts.html">Shifts</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="badge badge-pill badge-danger form-inline my-2 my-lg-0"
+            href="logout.html"
+            >Logout</a
+          >
+        </li>
+      </ul>
+    </div>
+    <br />
+
+    <div class="container">
+      <form class="d-flex">
+        <input class="form-control me-2" type="search" id="searchVal" placeholder="Search employee by their first name, last name or department" aria-label="Search">
+        <button class="btn btn-outline-dark" onclick="event.preventDefault();searchEmployee()">Search</button>
+      </form>
+      <div id="results"></div>
+        <div class="row">
+          <div class="col-sm">
+            <div class="d-flex flex-column justify-content-center mx-auto"> 
+              <table class="table table-sm table-striped w-100">
+                <thead>
+                  <tr>
+                    <th>Fullname</th>
+                    <th>Start work year</th>
+                    <th>Department ID</th>
+                    <th>Shifts</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <br />
+                <br />
+  
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+    
+    
+    
+    <!-- Bootstrap JS -  Makes error 1.6.23 - Console error -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+  </body>
+</html>

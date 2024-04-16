@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Edit Employee</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <script src="utilis.js" defer></script>
+    <script>
+      
+
+      async function getData() {
+        setWelcome();
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('editEmployee');
+        const FirstName = document.getElementById("fname");
+        const LastName = document.getElementById("lname");
+        const StartWorkYear = document.getElementById("StartWorkYear");
+        let DepartmentID = document.getElementById("DepartmentSelect"); 
+        const fFetch = await fetch("https://localhost:44300/api/employee/"+id);
+        const data = await fFetch.json();
+       
+        FirstName.value = data.FirstName;
+        LastName.value = data.LastName;
+        StartWorkYear.value = data.StartWorkYear;
+        //Options - Departements
+        const fFetch2 = await fetch("https://localhost:44300/api/department");
+        const data2 = await fFetch2.json();
+        console.log('data2');
+        console.log(data2); //ID,Name,Manager
+
+        let department = data2.find(dept => dept.ID === data.DepartmentID);       
+        let selectBoot = document.getElementById('DepartmentSelect');
+        data2.forEach(opt=> {
+          let option = document.createElement('option');
+          //Can change the value option.text to opt.ID if i want to show ID and not the department name
+          option.text = opt.Name;
+          option.value = opt.ID;
+          selectBoot.add(option);
+          DepartmentID.value = department.ID;
+        });
+      }
+
+    async function update(){
+      try{
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get('editEmployee');
+      const userID = sessionStorage.getItem("login");
+
+      const FirstName = document.getElementById("fname").value;
+      const LastName = document.getElementById("lname").value;
+      const StartWorkYear = document.getElementById("StartWorkYear").value;
+      const DepartmentID = document.getElementById("DepartmentSelect").value; 
+      let status = await addAction();
+
+      let obj = {
+        FirstName: FirstName,
+        LastName: LastName,
+        StartWorkYear: StartWorkYear,
+        DepartmentID: DepartmentID, 
+      };
+
+      let fetchParams = {
+        method: "PUT",
+        body: JSON.stringify(obj),
+        headers: { "Content-Type": "application/json" },
+      };
+      console.log(status);
+      if (!status == 0) {
+        await fetch("https://localhost:44300/api/employee/"+id,fetchParams);
+        alert("Updated - you are taken to the employee page.");
+        window.location.href = `employees.html`;     
+      } else {
+        alert("No actions left.");
+        console.log(`Error Status : ${status}`);
+      }
+    }catch(err){
+      console.log(err);
+    }
+    }
+    </script>
+    <style></style>
+  </head>
+  <body onload="getData()">
+    <div class="d-flex justify-content-between">
+      <h4>
+        <span
+          class="badge badge-pill badge-primary form-inline my-2 my-lg-0"
+          id="userWelcome"
+          >Welcome</span
+        ><br />
+
+      </h4>
+      <ul class="nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="employees.html">Employees</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="departments.html">Departments</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="shifts.html">Shifts</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="badge badge-pill badge-danger form-inline my-2 my-lg-0"
+            href="logout.html"
+            >Logout</a
+          >
+        </li>
+      </ul>
+    </div>
+    <br />
+    <div class="container centered-form" style="width: 20%">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title" style="text-align: center">Edit employee</h3>
+            <form>
+              <div class="form-group">
+                <label for="FirstName">FirstName</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="fname"
+                  placeholder="FirstName"
+                />
+              </div>
+              <div class="form-group">
+                <label for="LastName">LastName</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="lname"
+                  placeholder="LastName"
+                />
+              </div>
+              <div class="form-group">
+                <label for="StartWorkYear">StartWorkYear</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="StartWorkYear"
+                  placeholder="StartWorkYear"
+                />
+              </div>
+              <div class="form-group">
+                <label for="Department">Department</label>
+                <select class="form-select form-select-lg mb-3" id="DepartmentSelect" aria-label="Default select example"></select>
+              </div>
+                
+                
+              </select>
+              <button type="button" class="btn btn-primary" onclick="update()">
+                Update
+              </button>
+            </form>
+
+            <h5><span id="loginMsg"></span></h5>
+
+          </div>
+        </div>
+      </div>
+      </table>
+    </div>
+    
+
+    <!-- Bootstrap JS -  Makes error 1.6.23 - Console error -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+  </body>
+</html>

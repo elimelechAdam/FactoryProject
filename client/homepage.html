@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Homepage</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <script src="utilis.js" defer></script>
+  </head>
+  <script></script>
+  <body onload="setWelcome()">
+    <div class="d-flex justify-content-between">
+      <h4>
+        <span
+          class="badge badge-pill badge-primary form-inline my-2 my-lg-0"
+          id="userWelcome"
+        ></span>
+      </h4>
+      <ul class="nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="employees.html">Employees</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="departments.html">Departments</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Shifts</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="badge badge-pill badge-danger form-inline my-2 my-lg-0"
+            href="logout.html"
+            >Logout</a
+          >
+        </li>
+      </ul>
+    </div>
+    <!-- Bootstrap JS -  Makes error 1.6.23 - Console error -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+  </body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <style>
+      .centered-form {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+    </style>
+
+    <script src="utilis.js" defer></script>
+
+    <script>
+      async function getData() {
+        try {
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+          const loginMsg = document.getElementById("loginMsg");
+
+          const fFetch = await fetch("https://localhost:44300/api/login/");
+          const data = await fFetch.json();
+          console.log(data);
+
+          const findUser = data.find(
+            (item) => item.UserName == username && item.Password == password
+          );
+          console.log(findUser);
+
+          if (findUser) {
+            const { ID, UserName, Password, FullName, NumOfActions } = findUser;
+            loginMsg.setAttribute("class", "badge badge-success");
+            loginMsg.innerText = `Welcome ${UserName}`;
+            if (NumOfActions == 0) {
+              console.log("No actions left");
+              loginMsg.setAttribute("class", "badge badge-danger");
+              loginMsg.innerText = "No actions left";
+            } else {
+              localStorage.setItem("login", `${ID}`);
+              localStorage.setItem("fullname", `${FullName}`);
+              localStorage.setItem("actions", `${NumOfActions}`);
+              localStorage.setItem("date", `${new Date().getDate()}`);
+
+              window.location.href = `homepage.html?userid=${ID}`;
+            }
+
+            let currentDay = new Date().getDate();
+            const userLastDate = localStorage.getItem("date");
+            console.log(currentDay);
+            console.log(userLastDate);
+            if (userLastDate !== currentDay) {
+              console.log("currentday");
+              console.log(currentDay);
+              console.log("userlastdate");
+              console.log(userLastDate);
+              if (!userLastDate || currentDay != userLastDate) {
+                // if lastLoginDate doesn't exist or not today
+                console.log(`not exist userLastDate: ${userLastDate}`);
+                alert("diffrent day RESET!");
+                resetActionsLeft(ID);
+                window.location.href = `homepage.html?userid=${ID}`;
+              }
+            } else {
+              alert("inside resetActionLeft");
+              userActions = localStorage.setItem("actions", 0);
+              console.log(localStorage.getItem("actions"));
+              console.log(localStorage.getItem(userActions));
+
+              alert("No more action for today.");
+              console.log("No more actions for today.");
+            }
+          } else {
+            console.log("Username \ password not correct");
+            loginMsg.setAttribute("class", "badge badge-danger");
+            loginMsg.innerText = "Username \ password not correct";
+          }
+        } catch (err) {
+          console.log(`Catch Error: ${err}`);
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="container centered-form">
+      <div class="card" style="width: 40%">
+        <div class="card-body">
+          <h3 class="card-title" style="text-align: center">LOGIN</h3>
+          <form>
+            <div class="form-group">
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                placeholder="Enter your username"
+              />
+            </div>
+            <div class="form-group">
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                placeholder="Enter your password"
+              />
+            </div>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="event.preventDefault();getData()"
+            >
+              Login
+            </button>
+          </form>
+          <br />
+          <h5><span id="loginMsg"></span></h5>
+          <br />
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -  Makes error 1.6.23 - Console error -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+  </body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Departments</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <script src="utilis.js" defer></script>
+
+    <script>
+      async function getData() {
+        setWelcome();
+        const fFetch = await fetch("https://localhost:44300/api/department");
+        const data = await fFetch.json();
+        const tbody = document.getElementById("tbody");
+
+        const employeeFetch = await fetch(
+          "https://localhost:44300/api/employee"
+        );
+        const dataEmployee = await employeeFetch.json();
+
+        data.forEach((department) => {
+          let createTR = document.createElement("tr");
+
+          let createTDName = document.createElement("td");
+          createTDName.innerText = department.Name;
+
+          const actionsCell = document.createElement("td");
+
+          const editButton = document.createElement("a");
+          editButton.href = `editDepartment.html?department=${department.ID}`;
+          editButton.className = "btn btn-primary btn-sm";
+          editButton.textContent = "Edit";
+
+          const deleteButton = document.createElement("a");
+
+          deleteButton.className = "btn btn-danger text-white btn-sm";
+          deleteButton.textContent = "Delete";
+
+          const hasEmployees = dataEmployee.some(
+            (employee) => employee.DepartmentID === department.ID
+          );
+
+          actionsCell.appendChild(editButton);
+          if (!hasEmployees) {
+            actionsCell.appendChild(deleteButton);
+          }
+          createTR.appendChild(createTDName);
+          createTR.appendChild(actionsCell);
+          tbody.appendChild(createTR);
+
+          //Delete
+          //Important : The “delete” link in each row will be presented ONLY of there is no employee in that department
+          // if Employee . DepartmentID if null - can delete, else - can't.
+          deleteButton.addEventListener("click", async () => {
+            let status = await addAction();
+
+            console.log(status);
+            if (!status == 0) {
+              let fetchParams = {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+              };
+              await fetch(
+                "https://localhost:44300/api/department/" + department.ID,
+                fetchParams
+              );
+              alert(`Department : ${department.ID} was deleted.`);
+              location.reload();
+            } else {
+              alert("No actions left.");
+              console.log(`Error Status : ${status}`);
+            }
+          });
+        });
+      }
+    </script>
+    <style></style>
+  </head>
+  <body onload="getData()">
+    <div class="d-flex justify-content-between">
+      <h4>
+        <span
+          class="badge badge-pill badge-primary form-inline my-2 my-lg-0"
+          id="userWelcome"
+        ></span>
+        <h1>Departments</h1>
+      </h4>
+      <ul class="nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="employees.html">Employees</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="departments.html">Departments</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="shifts.html">Shifts</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="badge badge-pill badge-danger form-inline my-2 my-lg-0"
+            href="logout.html"
+            >Logout</a
+          >
+        </li>
+      </ul>
+    </div>
+    <br />
+    <div class="container">
+      <div class="row">
+        <div class="col-sm">
+          <div class="d-flex flex-column justify-content-center mx-auto">
+            <a href="addDepartment.html" class="btn btn-primary w-25"
+              >Add Department</a
+            >
+            <table class="table table-sm table-striped w-100">
+              <thead>
+                <tr>
+                  <th>Department Name</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <br />
+              <br />
+
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -  Makes error 1.6.23 - Console error -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+  </body>
+</html>

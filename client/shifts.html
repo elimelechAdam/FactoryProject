@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Shifts</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <script src="utilis.js" defer></script>
+
+    <script>
+      async function getData() {
+        setWelcome();
+        const fFetch = await fetch("https://localhost:44300/api/shift");
+        const data = await fFetch.json();
+
+        const fFetch4 = await fetch(
+          "https://localhost:44300/api/employeewithshift"
+        );
+        const data4 = await fFetch4.json();
+
+        const tbody = document.getElementById("tbody");
+
+        data.forEach((shift) => {
+          //data4 - employee with shift
+          let createTDEmployees = document.createElement("td");
+          data4.forEach((empShi) => {
+            let mapping = empShi.ShiftsList.filter((t) => shift.ID == t.ID);
+            console.log(empShi);
+            if (mapping.length > 0) {
+              const ul = document.createElement("ul");
+              const li = document.createElement("li");
+              li.innerHTML = `<a href="editEmployee.html?editEmployee=${empShi.ID}">${empShi.FirstName} ${empShi.LastName}</a>`;
+
+              ul.appendChild(li);
+              createTDEmployees.appendChild(ul);
+            }
+          });
+
+          let createTR = document.createElement("tr");
+
+          let createTDID = document.createElement("td");
+          createTDID.innerText = shift.ID;
+
+          let dateTobe = new Date(shift.Date);
+          let year = dateTobe.getFullYear();
+          let month = ("0" + (dateTobe.getMonth() + 1)).slice(-2);
+          let day = ("0" + dateTobe.getDate()).slice(-2);
+          let formattedDate = year + "-" + month + "-" + day;
+          let createTDDate = document.createElement("td");
+          createTDDate.innerText = formattedDate;
+
+          let formattedTimeStart =
+            (shift.StartTime < 10 ? "0" : "") + shift.StartTime + ":00";
+          let formattedTimeEnd =
+            (shift.EndTime < 10 ? "0" : "") + shift.EndTime + ":00";
+
+          let createTDStart = document.createElement("td");
+          createTDStart.innerText = formattedTimeStart;
+
+          let createTDEnd = document.createElement("td");
+          createTDEnd.innerText = formattedTimeEnd;
+
+          const actionsCell = document.createElement("td");
+
+          const deleteButton = document.createElement("a");
+
+          createTR.appendChild(createTDID);
+          createTR.appendChild(createTDEmployees);
+          createTR.appendChild(createTDDate);
+          createTR.appendChild(createTDStart);
+          createTR.appendChild(createTDEnd);
+          createTR.appendChild(actionsCell);
+          tbody.appendChild(createTR);
+        });
+      }
+    </script>
+    <style></style>
+  </head>
+  <body onload="getData()">
+    <div class="d-flex justify-content-between">
+      <h4>
+        <span
+          class="badge badge-pill badge-primary form-inline my-2 my-lg-0"
+          id="userWelcome"
+        ></span>
+        <h1>Shifts</h1>
+      </h4>
+
+      <ul class="nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="employees.html">Employees</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="departments.html">Departments</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="shifts.html">Shifts</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="badge badge-pill badge-danger form-inline my-2 my-lg-0"
+            href="logout.html"
+            >Logout</a
+          >
+        </li>
+      </ul>
+    </div>
+    <br />
+    <div class="container">
+      <div class="row">
+        <div class="col-sm">
+          <div class="d-flex flex-column justify-content-center mx-auto">
+            <a href="addShift.html" class="btn btn-primary w-25">Add Shift</a>
+            <table class="table table-sm table-striped w-100">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Date</th>
+                  <th>Start time</th>
+                  <th>End time</th>
+                </tr>
+              </thead>
+              <br />
+              <br />
+
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS -  Makes error 1.6.23 - Console error -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+  </body>
+</html>

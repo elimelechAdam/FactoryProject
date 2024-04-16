@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Departments</title>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <script src="utilis.js" defer></script>
+
+    <script>
+      
+      //need to make utilis and make global function
+
+
+      async function getData() {
+        setWelcome();
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('department');
+        const name = document.getElementById("name");
+        const manager = document.getElementById("manager");
+
+        const fFetch = await fetch("https://localhost:44300/api/department/"+id);
+        const data = await fFetch.json();
+        name.value = data.Name;
+        manager.value = data.Manager;
+    }
+    async function update(){
+      try{
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('department');
+        const userID = sessionStorage.getItem("login");
+        const name = document.getElementById("name").value;
+        const manager = document.getElementById("manager").value;
+        let status = await addAction();
+
+        let obj = {
+
+          Name: name,
+          Manager: +manager,
+        };
+
+        let fetchParams = {
+          method: "PUT",
+          body: JSON.stringify(obj),
+          headers: { "Content-Type": "application/json" },
+        };
+
+        console.log(status);
+        if (!status == 0) {
+          await fetch("https://localhost:44300/api/department/"+id,fetchParams);
+          alert("Updated - you are taken to the department page.");
+          window.location.href = `departments.html`;
+          
+        } else {
+          alert("No actions left.");
+          console.log(`Error Status : ${status}`);
+        }     
+      }catch(err){
+        console.log(err);
+      }
+    }
+    </script>
+    <style></style>
+  </head>
+  <body onload="getData()">
+    <div class="d-flex justify-content-between">
+      <h4>
+        <span
+          class="badge badge-pill badge-primary form-inline my-2 my-lg-0"
+          id="userWelcome"
+          >Welcome</span
+        ><br />
+
+      </h4>
+      <ul class="nav">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">Employees</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="departments.html">Departments</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Shifts</a>
+        </li>
+        <li class="nav-item">
+          <a
+            class="badge badge-pill badge-danger form-inline my-2 my-lg-0"
+            href="logout.html"
+            >Logout</a
+          >
+        </li>
+      </ul>
+    </div>
+    <br />
+    <div class="container centered-form" style="width: 20%">
+        <div class="card">
+          <div class="card-body">
+            <h3 class="card-title" style="text-align: center">Edit department</h3>
+            <form>
+              <div class="form-group">
+                <label for="Name">Name</label>
+
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  placeholder="Name"
+                />
+              </div>
+              <div class="form-group">
+                <label for="Manager">Manager</label>
+
+                <input
+                  type="text"
+                  class="form-control"
+                  id="manager"
+                  placeholder="Manager"
+                />
+              </div>
+              <button type="button" class="btn btn-primary" onclick="update()">
+                Update
+              </button>
+            </form>
+
+            <h5><span id="loginMsg"></span></h5>
+
+          </div>
+        </div>
+      </div>
+      </table>
+    </div>
+
+    <!-- Bootstrap JS -  Makes error 1.6.23 - Console error -->
+    <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script> -->
+  </body>
+</html>
